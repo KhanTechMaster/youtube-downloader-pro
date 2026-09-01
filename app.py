@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
     yield
     executor.shutdown(wait=False)
 
-app = FastAPI(title="YouTube Downloader", version="8.1.0", lifespan=lifespan)
+app = FastAPI(title="YouTube Downloader", version="8.2.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -310,11 +310,8 @@ def sync_download_process(url: str, mode: str, quality: str, task_id: str, out_f
                 ],
             })
     else:
-        target_height = int(quality) if quality.isdigit() else 4320
-        is_mp4_target = target_height <= 1080
         ydl_opts.update({
-            'format': f'best[height<={target_height}]/best',
-            'merge_output_format': 'mp4' if is_mp4_target else 'mkv',
+            'format': 'best/b',
         })
 
     try:
