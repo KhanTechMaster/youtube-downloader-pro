@@ -313,7 +313,7 @@ def sync_download_process(url: str, mode: str, quality: str, task_id: str, out_f
         target_height = int(quality) if quality.isdigit() else 4320
         is_mp4_target = target_height <= 1080
         ydl_opts.update({
-            'format': 'bv*+ba/b',
+            'format': f'best[height<={target_height}]/best',
             'merge_output_format': 'mp4' if is_mp4_target else 'mkv',
         })
 
