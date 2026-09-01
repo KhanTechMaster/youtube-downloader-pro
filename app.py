@@ -127,7 +127,13 @@ def extract_yt_info(url: str) -> Dict[str, Any]:
     if "youtube.com" not in url and "youtu.be" not in url:
         raise ValueError("Please enter a valid YouTube video URL.")
 
-    opts = {'quiet': True, 'no_warnings': True, 'skip_download': True}
+    # Bot protection bypass added here
+    opts = {
+        'quiet': True, 
+        'no_warnings': True, 
+        'skip_download': True,
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}}
+    }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=False)
         if 'entries' in info:
@@ -251,6 +257,7 @@ def sync_download_process(url: str, mode: str, quality: str, task_id: str, out_f
                     "message": "Converting & Embedding Thumbnail..."
                 }
 
+    # Bot protection bypass added here
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
@@ -259,6 +266,7 @@ def sync_download_process(url: str, mode: str, quality: str, task_id: str, out_f
         'socket_timeout': 60,
         'continue_dl': True,
         'windowsfilenames': True,
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
     }
 
     if mode == "audio":
