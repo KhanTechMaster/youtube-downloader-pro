@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --card-bg: #131722;
+            --yt-red: #ff0000;
+            --text-main: #f3f4f6;
+            --text-sub: #9ca3af;
+            --border-color: #232936;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .main-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-width: 650px;
+            width: 100%;
+            padding: 32px;
+        }
+
+        .brand-badge {
+            background: rgba(255, 0, 0, 0.12);
+            color: #ff4d4d;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            width: 50%;
+        }
+
+        .tab-btn.active {
+            background: var(--yt-red);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(255, 0, 0, 0.4);
+        }
+
+        .input-group-custom {
+            background: rgba(11, 14, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 6px 8px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group-custom:focus-within {
+            border-color: var(--yt-red);
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+        }
+
+        .input-group-custom input {
+            background: transparent !important;
+            border: none !important;
+            color: #ffffff !important;
+            padding: 10px 14px;
+            box-shadow: none !important;
+            font-size: 0.95rem;
+        }
+
+        .input-group-custom input::placeholder {
+            color: #6b7280;
+        }
+
+        .btn-paste {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border-radius: 10px !important;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-paste:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .media-preview {
+            background: rgba(11, 14, 20, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .media-preview img {
+            width: 110px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .custom-select {
+            background-color: rgba(11, 14, 20, 0.8);
+            color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            width: 100%;
+            outline: none;
+        }
+
+        .custom-select option {
+            background-color: #131722;
+            color: #fff;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #ff0000, #b30000);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 14px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(135deg, #e60000, #990000);
+        }
+
+        .btn-download:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-pause-cancel {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-pause-cancel:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fff;
+        }
+
+        .progress-box {
+            background: rgba(11, 14, 20, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .progress-bar-inner {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #ff0000, #ff6666);
+            transition: width 0.3s ease;
+        }
+
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #059669;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="success-toast">
+    <i class="fa-solid fa-circle-check me-2"></i> YouTube File downloaded successfully!
+</div>
+
+<div class="main-card text-center">
+    <div class="mb-3">
+        <span class="brand-badge"><i class="fa-brands fa-youtube me-2"></i> YOUTUBE DOWNLOADER</span>
+    </div>
+    <h2 class="fw-bold mb-1">YouTube <span style="color: #ff0000;">Downloader</span></h2>
+    <p class="text-secondary small mb-4">Fast Video & Studio Quality Audio Downloader</p>
+
+    <div class="d-flex p-1 mb-4" style="background: rgba(11, 14, 20, 0.6); border: 1px solid var(--border-color); border-radius: 14px;">
+        <button id="tab-video" class="tab-btn active" onclick="switchTab('video')">
+            <i class="fa-solid fa-video me-2"></i>Video Download
+        </button>
+        <button id="tab-audio" class="tab-btn" onclick="switchTab('audio')">
+            <i class="fa-solid fa-music me-2"></i>Audio Download
+        </button>
+    </div>
+
+    <div class="input-group-custom d-flex align-items-center mb-4">
+        <span class="px-2 text-secondary"><i class="fa-brands fa-youtube text-danger"></i></span>
+        <input type="text" id="url-input" class="form-control" placeholder="Paste YouTube Link here..." onpaste="handlePaste()">
+        <button class="btn btn-paste" onclick="pasteClipboard()">
+            <i class="fa-solid fa-paste me-1"></i> Paste
+        </button>
+    </div>
+
+    <div id="media-info" class="media-preview mb-4 d-none text-start">
+        <img id="thumb-img" src="" alt="Thumbnail">
+        <div class="overflow-hidden">
+            <h6 id="media-title" class="text-truncate mb-1 text-light fw-semibold">Media Title</h6>
+            <span id="media-author" class="small text-secondary d-block">Channel Name</span>
+        </div>
+    </div>
+
+    <div id="format-section" class="mb-4 text-start">
+        <label id="format-label" class="form-label small text-secondary fw-bold">SELECT VIDEO FORMAT & QUALITY</label>
+        <select id="quality-select" class="custom-select"></select>
+    </div>
+
+    <button id="download-btn" class="btn-download mb-4" onclick="startDownload()">
+        <i id="btn-icon" class="fa-solid fa-cloud-arrow-down me-2"></i><span id="btn-text">Download High Quality Video File</span>
+    </button>
+
+    <div id="progress-container" class="progress-box d-none text-start">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span id="status-text" class="small text-light fw-medium">
+                <i class="fa-solid fa-gear fa-spin me-2 text-danger"></i> Initializing...
+            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button id="cancel-btn" class="btn-pause-cancel" onclick="cancelCurrentDownload()"><i class="fa-solid fa-stop me-1"></i> Stop</button>
+                <span id="percent-text" class="fw-bold small text-danger">0%</span>
+            </div>
+        </div>
+        <div class="progress bg-dark mb-3" style="height: 8px;">
+            <div id="progress-bar" class="progress-bar-inner" style="width: 0%;"></div>
+        </div>
+        <div class="d-flex justify-content-between small text-secondary">
+            <span>Speed: <b id="speed-text" class="text-light">--</b></span>
+            <span>Size: <b id="size-text" class="text-light">-- / --</b></span>
+            <span>ETA: <b id="eta-text" class="text-light">--</b></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'video';
+    let mediaData = null;
+    let activeTaskId = null;
+    let activeEventSource = null;
+    let currentAbortController = null;
+    let isPaused = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderDefaultDropdown();
+    });
+
+    function switchTab(mode) {
+        currentMode = mode;
+        document.getElementById('tab-video').classList.toggle('active', mode === 'video');
+        document.getElementById('tab-audio').classList.toggle('active', mode === 'audio');
+        if (mediaData) {
+            renderOptions();
+        } else {
+            renderDefaultDropdown();
+        }
+    }
+
+    function renderDefaultDropdown() {
+        const select = document.getElementById('quality-select');
+        select.innerHTML = '';
+        if (currentMode === 'video') {
+            document.getElementById('format-label').innerText = 'SELECT VIDEO FORMAT & QUALITY';
+            const defaults = [
+                { value: '4320', label: '8K Ultra HD (MKV)' },
+                { value: '2160', label: '4K Ultra HD (MKV)' },
+                { value: '1440', label: '2K QHD (MKV)' },
+                { value: '1080', label: '1080p Full HD (MP4)' },
+                { value: '720', label: '720p HD (MP4)' },
+                { value: '480', label: '480p SD (MP4)' },
+                { value: '360', label: '360p Low (MP4)' },
+                { value: '240', label: '240p Low (MP4)' },
+                { value: '144', label: '144p Low (MP4)' }
+            ];
+            defaults.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.value;
+                opt.innerText = item.label;
+                if(item.value === '1080') opt.selected = true;
+                select.appendChild(opt);
+            });
+        } else {
+            document.getElementById('format-label').innerText = 'SELECT AUDIO QUALITY (WITH EMBEDDED THUMBNAIL)';
+            const audioOpts = [
+                { value: 'wav', label: 'Lossless Studio Audio (WAV)' },
+                { value: 'flac', label: 'Lossless Studio Audio (FLAC)' },
+                { value: 'm4a', label: 'Best Original Audio (M4A)' },
+                { value: '320', label: '320 kbps (Extreme MP3 + Thumbnail)' },
+                { value: '256', label: '256 kbps (High MP3 + Thumbnail)' },
+                { value: '192', label: '192 kbps (Medium MP3 + Thumbnail)' },
+                { value: '128', label: '128 kbps (Standard MP3 + Thumbnail)' }
+            ];
+            audioOpts.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.value;
+                opt.innerText = item.label;
+                if(item.value === '320') opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    async function pasteClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById('url-input').value = text;
+            fetchInfo(text);
+        } catch (err) {
+            alert('Clipboard access denied.');
+        }
+    }
+
+    function handlePaste() {
+        setTimeout(() => {
+            const url = document.getElementById('url-input').value;
+            if (url) fetchInfo(url);
+        }, 100);
+    }
+
+    async function fetchInfo(url) {
+        if (!url) return;
+        document.getElementById('media-info').classList.add('d-none');
+
+        try {
+            const res = await fetch(`/api/info?url=${encodeURIComponent(url)}`);
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.detail || "Could not fetch YouTube video info.");
+            }
+            
+            mediaData = await res.json();
+            document.getElementById('thumb-img').src = mediaData.thumbnail;
+            document.getElementById('media-title').innerText = mediaData.title;
+            document.getElementById('media-author').innerText = mediaData.uploader;
+            document.getElementById('media-info').classList.remove('d-none');
+
+            renderOptions();
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
+    }
+
+    function renderOptions() {
+        const select = document.getElementById('quality-select');
+        select.innerHTML = '';
+        isPaused = false;
+        resetDownloadButtonState();
+
+        if (currentMode === 'video') {
+            document.getElementById('format-label').innerText = 'SELECT VIDEO FORMAT & QUALITY';
+            if(mediaData && mediaData.formats && mediaData.formats.length > 0) {
+                mediaData.formats.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.height;
+                    opt.innerText = item.label;
+                    select.appendChild(opt);
+                });
+            } else {
+                renderDefaultDropdown();
+            }
+        } else {
+            renderDefaultDropdown();
+        }
+    }
+
+    function resetDownloadButtonState() {
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+        if (isPaused) {
+            btnText.innerText = 'Resume Download';
+            btnIcon.className = 'fa-solid fa-play me-2';
+        } else {
+            btnText.innerText = currentMode === 'video' ? 'Download High Quality Video File' : 'Download High Quality Audio File (+ Thumbnail)';
+            btnIcon.className = 'fa-solid fa-cloud-arrow-down me-2';
+        }
+    }
+
+    async function startDownload() {
+        const url = document.getElementById('url-input').value;
+        const quality = document.getElementById('quality-select').value;
+        const btn = document.getElementById('download-btn');
+        
+        if (!url) {
+            alert("Please enter a valid YouTube video link.");
+            return;
+        }
+
+        btn.disabled = true;
+
+        if (!isPaused || !activeTaskId) {
+            activeTaskId = 'task_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now();
+        }
+
+        isPaused = false;
+        currentAbortController = new AbortController();
+
+        document.getElementById('progress-container').classList.remove('d-none');
+        document.getElementById('cancel-btn').style.display = 'inline-block';
+        
+        if (activeEventSource) activeEventSource.close();
+        activeEventSource = new EventSource(`/api/progress/${activeTaskId}`);
+
+        activeEventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            if (data.status === 'downloading') {
+                updateUIProgress(data.percent, `Downloading...`, data.speed, `${data.downloaded} / ${data.total}`, data.eta);
+            } else if (data.status === 'processing') {
+                updateUIProgress(99, "Processing & Embedding Thumbnail...", "--", "-- / --", "--");
+            } else if (data.status === 'completed') {
+                updateUIProgress(100, "Download Complete!", "--", `${data.total} / ${data.total}`, "--", true);
+                activeEventSource.close();
+                document.getElementById('cancel-btn').style.display = 'none';
+                btn.disabled = false;
+                isPaused = false;
+                resetDownloadButtonState();
+            } else if (data.status === 'error') {
+                activeEventSource.close();
+                btn.disabled = false;
+                alert("Download Error: " + (data.error || "Unknown error"));
+            } else if (data.status === 'cancelled') {
+                activeEventSource.close();
+            }
+        };
+
+        try {
+            const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&mode=${currentMode}&quality=${quality}&task_id=${activeTaskId}`;
+            const response = await fetch(downloadUrl, { signal: currentAbortController.signal });
+
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const errData = await response.json();
+                if (errData.status === 'cancelled') return;
+                throw new Error(errData.detail || "Download failed");
+            }
+
+            if (!response.ok) {
+                throw new Error("Download failed with status " + response.status);
+            }
+
+            const blob = await response.blob();
+            
+            let filename = "youtube_download";
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                if (matches != null && matches[1]) { 
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = decodeURIComponent(filename);
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(blobUrl);
+            a.remove();
+            showToast();
+
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                btn.disabled = false;
+                alert("Error: " + err.message);
+            }
+        }
+    }
+
+    async function cancelCurrentDownload() {
+        if (currentAbortController) {
+            currentAbortController.abort();
+        }
+        if (activeTaskId) {
+            await fetch(`/api/cancel/${activeTaskId}`, { method: 'POST' });
+        }
+        if (activeEventSource) {
+            activeEventSource.close();
+        }
+        
+        isPaused = true;
+        const btn = document.getElementById('download-btn');
+        btn.disabled = false;
+        resetDownloadButtonState();
+
+        document.getElementById('cancel-btn').style.display = 'none';
+        
+        const currentPercent = document.getElementById('percent-text').innerText;
+        const currentSize = document.getElementById('size-text').innerText;
+        updateUIProgress(parseFloat(currentPercent) || 0, "Download stopped by user (Click Resume)", "--", currentSize, "--");
+    }
+
+    function updateUIProgress(percent, statusMsg, speed, size, eta, isCompleted = false) {
+        const progressBar = document.getElementById('progress-bar');
+        const statusText = document.getElementById('status-text');
+        
+        progressBar.style.width = `${percent}%`;
+        document.getElementById('percent-text').innerText = `${percent}%`;
+        document.getElementById('speed-text').innerText = speed;
+        document.getElementById('size-text').innerText = size;
+        document.getElementById('eta-text').innerText = eta;
+
+        if (isCompleted) {
+            statusText.innerHTML = `<i class="fa-solid fa-circle-check text-success me-2"></i> ${statusMsg}`;
+            progressBar.style.background = '#059669';
+        } else {
+            statusText.innerHTML = `<i class="fa-solid fa-gear fa-spin me-2 text-danger"></i> ${statusMsg}`;
+            progressBar.style.background = 'linear-gradient(90deg, #ff0000, #ff6666)';
+        }
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+</script>
+</body>
+</html>

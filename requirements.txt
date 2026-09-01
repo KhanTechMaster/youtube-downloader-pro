@@ -1,0 +1,4 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
+python-multipart>=0.0.6
